@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>診療科相談チャット</title>
+    <style>
+        body {
+            font-family: "Noto Sans JP", sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            background: #f5f7fb;
+        }
+
+        /* ===== LINE風チャットエリア ===== */
+        #chat {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            height: 420px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .msg {
+            display: flex;
+            max-width: 80%;
+        }
+
+        .user {
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+
+        .ai {
+            justify-content: flex-start;
+            margin-right: auto;
+        }
+
+        .bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        .user .bubble {
+            background: #DCF8C6;
+        }
+
+        .ai .bubble {
+            background: #ffffff;
+            border: 1px solid #ddd;
+        }
+
+        /* 入力フォーム */
+        #form {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        #input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: none;
+            background: #2c7be5;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #1a5fc1;
+        }
+
+        #department-area {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>相談チャット</h1>
+    <a href="javascript:history.back()" class="back-btn">← 戻る</a>
+
+    <div id="chat"></div>
+
+    <form id="form">
+        <input id="input" type="text" placeholder="症状を入力してください（例：2日前から発熱と喉の痛み）" style="width:80%;" />
+        <button type="submit">送信</button>
+    </form>
+
+    <div id="department-area"></div>
+
+    <script>
+        const chatEl = document.getElementById("chat");
+        const formEl = document.getElementById("form");
+        const inputEl = document.getElementById("input");
+        const deptAreaEl = document.getElementById("department-area");
+
+        function addMessage(role, text) {
+            const div = document.createElement("div");
+            div.className = "msg " + (role === "user" ? "user" : "ai");
+            const bubble = document.createElement("div");
+            bubble.className = "bubble";
+            bubble.textContent = text;
+            div.appendChild(bubble);
+            chatEl.appendChild(div);
+            chatEl.scrollTop = chatEl.scrollHeight;
+        }
+
+        formEl.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const text = inputEl.value.trim();
+            if (!text) return;
+
+            addMessage("user", text);
+            inputEl.value = "";
+
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await res.json();
+            if (data.error) {
+                addMessage("assistant", "エラーが発生しました: " + data.error);
+                return;
+            }
+
+            let aiText = "";
+            if (data.department) aiText += `おすすめの診療科: ${data.department}\n`;
+            if (data.reason) aiText += `理由: ${data.reason}\n`;
+            if (data.note) aiText += `\n${data.note}`;
+
+            addMessage("assistant", aiText);
+
+            deptAreaEl.innerHTML = "";
+            if (data.department) {
+                const info = document.createElement("div");
+                info.textContent = "この診療科で予約に進む：";
+                deptAreaEl.appendChild(info);
+
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "dept-btn";
+                btn.textContent = data.department;
+                btn.addEventListener("click", () => {
+                    window.location.href = `/schedule?dept=${encodeURIComponent(data.department)}`;
+                });
+                deptAreaEl.appendChild(btn);
+            }
+        });
+    </script>
+</body>
+
+</html>

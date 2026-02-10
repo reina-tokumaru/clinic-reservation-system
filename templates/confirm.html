@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container">
+
+    <div class="card">
+        <h2>最終確認</h2>
+
+        <ul style="list-style:none; padding:0; margin-bottom:20px; line-height:1.8;">
+            <li><strong>医療機関：</strong>{{ clinic }}</li>
+            <li><strong>受診日：</strong>{{ date }}</li>
+            <li><strong>患者名：</strong>{{ patient.name }}</li>
+            <li><strong>メール：</strong>{{ patient.email }}</li>
+        </ul>
+
+        <form method="POST" action="/complete" class="form">
+            <button type="submit">予約を確定する</button>
+        </form>
+
+        <div style="margin-top: 16px;">
+
+            {% endblock %}

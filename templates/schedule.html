@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container">
+
+    <div class="card">
+        <h2>受診日時選択</h2>
+
+        {% if department %}
+        <p class="selected-info">診療科：<strong>{{ department }}</strong></p>
+        {% endif %}
+
+        <form method="POST" class="form">
+            <label>
+                日付
+                <input type="date" name="date" value="{{ date }}" required>
+            </label>
+
+            <button type="submit">次へ</button>
+        </form>
+
+        <div style="margin-top: 16px;">
+            <a href="/search" style="color:#2c7be5; text-decoration:none;">← 戻る</a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

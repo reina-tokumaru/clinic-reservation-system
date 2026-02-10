@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container">
+
+
+    <div class="card">
+        <h2>患者情報の入力</h2>
+
+        <form method="POST" class="form">
+
+            <label>
+                お名前
+                <input type="text" name="name" value="{{ patient.name if patient else '' }}" required>
+            </label>
+
+            <label>
+                メールアドレス
+                <input type="email" name="email" value="{{ patient.email if patient else '' }}" required> </label>
+
+            <button type="submit">確認へ</button>
+        </form>
+
+        <div style="margin-top: 16px;">
+            <a href="/schedule" style="color:#2c7be5; text-decoration:none;">← 戻る</a>
+
+            {% endblock %}

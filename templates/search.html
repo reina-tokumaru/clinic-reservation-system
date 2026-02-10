@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2 class="search-title">医療機関検索</h2>
+
+<div class="search-area">
+    <form method="GET" action="/search" class="search-form">
+        <div class="search-wrapper">
+            <input type="text" name="clinic" id="clinic-input" class="searchbox" placeholder="医療機関名" autocomplete="off"
+                required>
+            <div id="suggestions" class="suggestions"></div>
+        </div>
+        <button type="submit" class="searchbtn">検索</button>
+    </form>
+</div>
+
+{% if clinic %}
+<div class="search-result">
+    <p>「{{ clinic }}」の検索結果です。</p>
+</div>
+{% endif %}
+
+<script>
+    const input = document.getElementById("clinic-input");
+    const suggestionsBox = document.getElementById("suggestions");
+
+    input.addEventListener("input", async () => {
+        const query = input.value.trim();
+
+        if (query.length === 0) {
+            suggestionsBox.innerHTML = "";
+            return;
+        }
+
+        const res = await fetch(`/suggest?q=${query}`);
+        const data = await res.json();
+
+        suggestionsBox.innerHTML = "";
+
+        data.forEach(name => {
+            const div = document.createElement("div");
+            div.textContent = name;
+
+            div.addEventListener("click", () => {
+                input.value = name;
+                suggestionsBox.innerHTML = "";
+            });
+
+            suggestionsBox.appendChild(div);
+        });
+    });
+</script>
+
+{% if results %}
+<div class="result-list">
+    {% for r in results %}
+    <a href="/clinic/{{ r.id }}?name={{ r.name }}" class="clinic-card">
+        <div class="clinic-name">{{ r.name }}</div>
+        <div class="clinic-meta">
+            内科・外来対応 / 本日予約可
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

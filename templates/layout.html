@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>医療機関予約</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <header class="header">
+        {% if request.path != "/" %}
+        <h1>
+            <a href="/" class="logo">かんたん予約</a>
+        </h1>
+        {% endif %}
+    </header>
+
+    {% if step is defined %}
+    <div class="step-bar">
+        <div class="step {{ 'active' if step >= 1 }}">検索</div>
+        <div class="step {{ 'active' if step >= 2 }}">日時</div>
+        <div class="step {{ 'active' if step >= 3 }}">患者情報</div>
+        <div class="step {{ 'active' if step >= 4 }}">確認</div>
+        <div class="step {{ 'active' if step >= 5 }}">完了</div>
+    </div>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+
+</html>
