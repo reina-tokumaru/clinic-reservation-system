@@ -7,10 +7,8 @@ import os
 load_dotenv()
 
 # OpenAI クライアント
-client = OpenAI(
-    base_url="http://localhost:11434/v1",
-    api_key="dummy"  # 何でもいい
-)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 # Flask アプリ
 app = Flask(__name__)
@@ -168,7 +166,7 @@ def chat_api():
         return jsonify({"error": "empty message"}), 400
 
     response = client.chat.completions.create(
-        model="llama3.2",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
@@ -186,6 +184,9 @@ def chat_api():
         ],
         temperature=0.3
     )
+
+    return jsonify(response.choices[0].message["content"])
+
 
     raw = response.choices[0].message.content
 
