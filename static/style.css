@@ -418,6 +418,67 @@ body {
     color: #333;
 }
 
+/* 見やすいプルダウン（select） */
+.card label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+}
+
+.card select {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 48px 12px 12px;
+    /* 右に余白（矢印分） */
+    font-size: 16px;
+    line-height: 1.4;
+    border: 1px solid #d0d7de;
+    border-radius: 12px;
+    background-color: #fff;
+    color: #111;
+
+    /* ネイティブ矢印を消す */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    /* ▼三角をCSSで描画（常に中央） */
+    background-image:
+        linear-gradient(45deg, transparent 50%, #333 50%),
+        linear-gradient(-45deg, transparent 50%, #333 50%);
+    background-position:
+        calc(100% - 20px) center,
+        calc(100% - 14px) center;
+    background-size: 8px 8px;
+    background-repeat: no-repeat;
+
+    /* 影で“入力欄感” */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-image 0.15s ease;
+}
+
+/* フォーカス時に分かりやすく */
+.card select:focus {
+    outline: none;
+    border-color: #4f8cff;
+    box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.18);
+
+    /* 三角の色も変える */
+    background-image:
+        linear-gradient(45deg, transparent 50%, #4f8cff 50%),
+        linear-gradient(-45deg, transparent 50%, #4f8cff 50%);
+}
+
+/* 未選択の時の「選択してください」を薄く見せたい場合 */
+.card select:invalid {
+    color: #888;
+}
+
+.card select option {
+    color: #111;
+}
+
 /* ===== AI相談アイコンボタン ===== */
 
 .ai-chat-btn {

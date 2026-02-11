@@ -3,18 +3,13 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-# .env 読み込み
 load_dotenv()
 
-# OpenAI クライアント
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-
-# Flask アプリ
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
 
-# 仮の予約リスト
 reservations = []
 
 CLINICS = [
@@ -33,7 +28,6 @@ def index():
         date = request.form.get("reservation_date")
         time = request.form.get("time_slot")
 
-        # リストに追加
         reservations.append({
             "name": name,
             "date": date,
@@ -41,10 +35,8 @@ def index():
             "status": "予約済み"
         })
 
-        # POST後はリダイレクト（再送信防止）
         return redirect("/")
 
-    # GETの場合はフォームと予約一覧を表示
     return render_template("index.html", reservations=reservations)
 
 #検索
@@ -67,16 +59,34 @@ def search():
 #日時
 @app.route("/schedule", methods=["GET", "POST"])
 def schedule():
-    dept = request.args.get("dept")
-    clinic_id = request.args.get("clinic_id")
-    if clinic_id:
-        session["clinic_id"] = clinic_id
-    if dept:
-        session["department"] = dept
+    clinic_name = session.get("clinic")
+    clinic_id = session.get("clinic_id")
+
+    dept_q = request.args.get("dept")
+    clinic_id_q = request.args.get("clinic_id")
+    if clinic_id_q:
+        session["clinic_id"] = clinic_id_q
+    if dept_q:
+        session["department"] = dept_q
+
     if request.method == "POST":
-        session["date"] = request.form.get("date")
-        return redirect("/patient")
-    return render_template("schedule.html", step=2, department=session.get("department"), date=session.get("date"))
+        dept_f = request.form.get("dept")
+        if dept_f:
+            session["department"] = dept_f
+            return redirect("/schedule") 
+
+        date = request.form.get("date")
+        if date:
+            session["date"] = date
+            return redirect("/patient")
+
+    return render_template(
+        "schedule.html",
+        step=2,
+        clinic={"id": clinic_id, "name": clinic_name} if clinic_name else None,
+        department=session.get("department"),
+        date=session.get("date"),
+    )
 
 
 #病院詳細ページ
@@ -185,14 +195,12 @@ def chat_api():
         temperature=0.3
     )
 
-    # 新SDK対応：content は配列の可能性がある
     msg = response.choices[0].message
     if isinstance(msg.content, list):
         raw = "".join([c.text for c in msg.content if hasattr(c, "text")])
     else:
         raw = msg.content or ""
 
-    # JSON 部分だけ抽出
     import re, json
     match = re.search(r"\{[\s\S]*\}", raw)
     if not match:
