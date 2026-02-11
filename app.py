@@ -185,11 +185,14 @@ def chat_api():
         temperature=0.3
     )
 
-    return jsonify(response.choices[0].message["content"])
+    # 新SDK対応：content は配列の可能性がある
+    msg = response.choices[0].message
+    if isinstance(msg.content, list):
+        raw = "".join([c.text for c in msg.content if hasattr(c, "text")])
+    else:
+        raw = msg.content or ""
 
-
-    raw = response.choices[0].message.content
-
+    # JSON 部分だけ抽出
     import re, json
     match = re.search(r"\{[\s\S]*\}", raw)
     if not match:
