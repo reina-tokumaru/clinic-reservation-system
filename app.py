@@ -155,6 +155,7 @@ DEPARTMENTS = [
 def clinic_detail(id):
     name = request.args.get("name")
     clinic = {"id": id, "name": name}
+    session["clinic_id"] = id
     session["clinic"] = name
 
     return render_template(
